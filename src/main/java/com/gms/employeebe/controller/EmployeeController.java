@@ -19,13 +19,28 @@ public class EmployeeController {
     // USER + ADMIN: xem danh sách
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/employees")
-    public Page<EmployeeResponse> list(@RequestParam(required = false) String q,
-                                       @RequestParam(defaultValue = "0") int page,
-                                       @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        return employeeService.search(q, pageable);
-    }
+    public Page<EmployeeResponse> list(
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
+        System.out.println(">>> CONTROLLER - RECEIVED PARAMS:");
+        System.out.println("    q    = '" + q + "'");
+        System.out.println("    page = " + page);
+        System.out.println("    size = " + size);
+        System.out.println("    Full URL requested: " + "/api/employees?q=" + q + "&page=" + page + "&size=" + size);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
+
+        Page<EmployeeResponse> result = employeeService.search(q, pageable);
+
+        System.out.println(">>> RETURNING:");
+        System.out.println("    Actual page number: " + result.getNumber());
+        System.out.println("    Total pages: " + result.getTotalPages());
+        System.out.println("    Content size: " + result.getContent().size());
+
+        return result;
+    }
     // USER + ADMIN: xem chi tiết
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/employees/{id}")

@@ -98,12 +98,19 @@ public class EmployeeServiceImpl implements EmployeeService {
         res.setDob(e.getDob());
         res.setAddress(e.getAddress());
         res.setPhone(e.getPhone());
-        res.setLanguages(e.getLanguages().stream()
-                .map(l -> l.getLanguageType().getCode() + "-" + l.getLevel())
-                .collect(Collectors.toList()));
-        res.setCertificates(e.getCertificates().stream()
-                .map(Certificate::getCode)
-                .collect(Collectors.toList()));
+
+        res.setLanguages(
+                e.getLanguages().stream()
+                        .map(l -> l.getName() + "-" + l.getLevel())
+                        .collect(Collectors.toList())
+        );
+
+        res.setCertificates(
+                e.getCertificates().stream()
+                        .map(Certificate::getName)
+                        .collect(Collectors.toList())
+        );
+
         return res;
     }
 }

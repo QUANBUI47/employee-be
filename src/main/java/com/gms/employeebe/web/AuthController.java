@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,13 +35,28 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> me(@AuthenticationPrincipal UserDetails user) {
-        return ResponseEntity.ok(Map.of("username", user.getUsername(), "authorities", user.getAuthorities()));
+    public ResponseEntity<?> me() {
+
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+
+        CustomUserDetails principal = (CustomUserDetails) auth.getPrincipal();
+
+        return ResponseEntity.ok(Map.of(
+                "id", principal.getUser().getId(),
+                "username", principal.getUsername(),
+                "role", principal.getUser().getRole().name()
+        ));
     }
 
     @Data
     public static class LoginRequest {
-        @NotBlank private String username;
-        @NotBlank private String password;
+        @NotBlank
+        private String username;
+        @NotBlank
+        private String password;
     }
 }
